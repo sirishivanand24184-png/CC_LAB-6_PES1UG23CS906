@@ -1,11 +1,8 @@
-FROM gcc:latest
+FROM ubuntu:22.04
 
-WORKDIR /app
+RUN apt-get update && apt-get install -y netcat hostname && apt-get clean
 
-COPY app.cpp .
-
-RUN g++ app.cpp -o app
-
-RUN apt-get update && apt-get install -y netcat-openbsd
-
-CMD while true; do echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n$(./app)" | nc -l -p 8080 -q 1; done
+CMD while true; do \
+  echo -e "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nConnection: close\r\n\r\nServed by backend: $(hostname)" \
+  | nc -l -p 8080 -q 1; \
+done
