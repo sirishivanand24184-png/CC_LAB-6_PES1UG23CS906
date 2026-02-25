@@ -6,4 +6,4 @@ COPY app.cpp .
 
 RUN g++ app.cpp -o app
 
-CMD ["./app"]
+CMD ["sh", "-c", "while true; do ./app | nc -l -p 8080 -q 1; done"]
