@@ -1,14 +1,11 @@
 #include <iostream>
 #include <unistd.h>
-#include <limits.h>
 
 using namespace std;
 
 int main() {
-    char hostname[HOST_NAME_MAX];
-    gethostname(hostname, HOST_NAME_MAX);
-
+    char hostname[256];
+    gethostname(hostname, sizeof(hostname));
     cout << "Served by backend: " << hostname << endl;
-
     return 0;
 }
