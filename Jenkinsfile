@@ -3,31 +3,34 @@ pipeline {
 
     stages {
 
-        stage('Build Backend') {
+        stage('Build Backend Image') {
             steps {
-                echo 'Building backend Docker image...'
-                sh 'docker build -t backend-image ./backend'
+                sh 'docker build -t backend-app backend'
             }
         }
 
-        stage('Run Backend Container') {
+        stage('Deploy Backends') {
             steps {
-                echo 'Running backend container...'
-                sh 'docker run --name backend-container backend-image'
+                sh '''
+                docker rm -f backend1 backend2 || true
+                docker run -d --name backend1 backend-app
+                docker run -d --name backend2 backend-app
+                sleep 3
+                '''
             }
         }
 
-        stage('Build NGINX Image') {
+        stage('Start NGINX Load Balancer') {
             steps {
-                echo 'Pulling nginx image...'
-                sh 'docker pull nginx'
+                sh '''
+                docker rm -f nginx-lb || true
+                docker run -d -p 80:80 --name nginx-lb nginx
+                sleep 2
+                docker cp nginx/default.conf nginx-lb:/etc/nginx/conf.d/default.conf
+                docker exec nginx-lb nginx -s reload
+                '''
             }
         }
 
-        stage('Success') {
-            steps {
-                echo 'CI/CD Pipeline completed successfully for PES1UG23CS906'
-            }
-        }
     }
 }
